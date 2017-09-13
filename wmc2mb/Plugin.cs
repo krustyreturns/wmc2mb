@@ -1,4 +1,5 @@
-﻿using MediaBrowser.Common.Configuration;
+﻿using System;
+using MediaBrowser.Common.Configuration;
 using MediaBrowser.Common.Plugins;
 using MediaBrowser.Model.Serialization;
 using wmc2mb.Configuration;
@@ -33,6 +34,12 @@ namespace wmc2mb
             {
                 return "Provides pvr functions using using ServerWMC to control a WMC backend.";
             }
+        }
+
+        private Guid _id = new Guid("817527c1-5f78-4763-acb1-59fa0d64854a");
+        public override Guid Id
+        {
+            get { return _id; }
         }
 
         /// <summary>
