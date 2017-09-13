@@ -1,0 +1,9 @@
+C:\Users\Victor\Documents\VSProjects\Emby2\wmc2mb\wmc2mb\bin\Debug\netstandard1.4\wmc2mb.deps.json
+C:\Users\Victor\Documents\VSProjects\Emby2\wmc2mb\wmc2mb\bin\Debug\netstandard1.4\wmc2mb.dll
+C:\Users\Victor\Documents\VSProjects\Emby2\wmc2mb\wmc2mb\bin\Debug\netstandard1.4\wmc2mb.pdb
+C:\Users\Victor\Documents\VSProjects\Emby2\wmc2mb\wmc2mb\obj\Debug\netstandard1.4\wmc2mb.csprojResolveAssemblyReference.cache
+C:\Users\Victor\Documents\VSProjects\Emby2\wmc2mb\wmc2mb\obj\Debug\netstandard1.4\wmc2mb.csproj.CoreCompileInputs.cache
+C:\Users\Victor\Documents\VSProjects\Emby2\wmc2mb\wmc2mb\obj\Debug\netstandard1.4\wmc2mb.AssemblyInfoInputs.cache
+C:\Users\Victor\Documents\VSProjects\Emby2\wmc2mb\wmc2mb\obj\Debug\netstandard1.4\wmc2mb.AssemblyInfo.cs
+C:\Users\Victor\Documents\VSProjects\Emby2\wmc2mb\wmc2mb\obj\Debug\netstandard1.4\wmc2mb.dll
+C:\Users\Victor\Documents\VSProjects\Emby2\wmc2mb\wmc2mb\obj\Debug\netstandard1.4\wmc2mb.pdb
