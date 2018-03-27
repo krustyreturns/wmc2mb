@@ -58,6 +58,7 @@ namespace wmc2mb
         public string _recTVPath = null;            // store the path to the rec TV folder received from swmc
 
         private string _linuxPath;
+        public DateTime LastRecordingChange = DateTime.MinValue;
 
         /// <summary>
         /// constructor
@@ -840,8 +841,9 @@ namespace wmc2mb
 
             if (!IsServerError(responses))
             {
-                
-		        _logger.Info("CreateTimerAsync> recording added for timer '{0}', status {1}", info.Name, info.Status);
+                LastRecordingChange = DateTime.UtcNow;
+
+                _logger.Info("CreateTimerAsync> recording added for timer '{0}', status {1}", info.Name, info.Status);
 
 		        if (responses.Length > 1)								        // if there is extra results sent from server...
 		        {
@@ -901,7 +903,7 @@ namespace wmc2mb
 
             if (!IsServerError(responses))
             {
-
+                LastRecordingChange = DateTime.UtcNow;
             }
         }
 
@@ -1047,7 +1049,7 @@ namespace wmc2mb
 
             if (!IsServerError(responses))
             {
-
+                LastRecordingChange = DateTime.UtcNow;
             }
         }
 
@@ -1057,7 +1059,7 @@ namespace wmc2mb
 
             if (!IsServerError(responses))
             {
-
+                LastRecordingChange = DateTime.UtcNow;
             }
         }
 
@@ -1082,7 +1084,7 @@ namespace wmc2mb
 
             if (!IsServerError(responses))
             {
-
+                LastRecordingChange = DateTime.UtcNow;
             }
         }
 
@@ -1118,7 +1120,7 @@ namespace wmc2mb
 
             if (!IsServerError(responses))
             {
-
+                LastRecordingChange = DateTime.UtcNow;
             }
         }
 
@@ -1239,7 +1241,12 @@ namespace wmc2mb
 
         public async Task<IEnumerable<RecordingInfo>> GetRecordingsAsync(System.Threading.CancellationToken cancellationToken)
         {
-            var recordings = new List<RecordingInfo>();
+            return new List<RecordingInfo>();
+        }
+
+        public async Task<IEnumerable<MyRecordingInfo>> GetAllRecordingsAsync(System.Threading.CancellationToken cancellationToken)
+        {
+            var recordings = new List<MyRecordingInfo>();
 
             char[] dlim = { ';' };
 
@@ -1249,13 +1256,13 @@ namespace wmc2mb
             {
                 foreach (string response in responses)
                 {
-                    RecordingInfo mRec = new RecordingInfo();
+                    MyRecordingInfo mRec = new MyRecordingInfo();
 
-                    var v = response.Split('|');				// split to unpack string
+                    var v = response.Split('|');                // split to unpack string
 
 
-                 //   if (long.Parse(v[10]) < 0)
-                 //       Debug.WriteLine("");
+                    //   if (long.Parse(v[10]) < 0)
+                    //       Debug.WriteLine("");
 
                     mRec.Id = v[0];
                     mRec.Name = v[1];
@@ -1271,9 +1278,9 @@ namespace wmc2mb
                     if (v[7] != string.Empty)
                     {
                         if (v[7].StartsWith(HTTP))          // if path is web url
-                            mRec.ImageUrl = v[7];  
+                            mRec.ImageUrl = v[7];
                         else                                // otherwise assume unc path
-                            mRec.ImagePath = TVPath(v[7]);  
+                            mRec.ImagePath = TVPath(v[7]);
                     }
                     mRec.HasImage = false;// v[7] != string.Empty;
                     //STRCPY(xRec.strThumbnailPath, v[8].c_str());
