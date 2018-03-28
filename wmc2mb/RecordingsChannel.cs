@@ -243,7 +243,7 @@ namespace wmc2mb
                     new MediaSourceInfo
                     {
                         Path = path,
-                        Protocol = path.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? MediaProtocol.Http : MediaProtocol.File,
+                        Protocol = (path ?? string.Empty).StartsWith("http", StringComparison.OrdinalIgnoreCase) ? MediaProtocol.Http : MediaProtocol.File,
                         Id = item.Id
                     }
                 },
