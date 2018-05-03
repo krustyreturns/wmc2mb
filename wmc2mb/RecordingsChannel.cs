@@ -18,7 +18,7 @@ using MediaBrowser.Model.LiveTv;
 
 namespace wmc2mb
 {
-    public class RecordingsChannel : IChannel, IHasCacheKey, ISupportsDelete, ISupportsLatestMedia, ISupportsMediaProbe, IHasFolderAttributes
+    public class RecordingsChannel : IChannel, IHasCacheKey, ISupportsDelete, ISupportsLatestMedia, ISupportsMediaProbe, IHasFolderAttributes, IRequiresMediaInfoCallback
     {
         public ILiveTvManager _liveTvManager;
 
@@ -260,6 +260,13 @@ namespace wmc2mb
             };
 
             return channelItem;
+        }
+
+        public async Task<IEnumerable<MediaSourceInfo>> GetChannelItemMediaInfo(string id, CancellationToken cancellationToken)
+        {
+            var stream = await GetService().GetRecordingStream(id, null, cancellationToken).ConfigureAwait(false);
+
+            return new List<MediaSourceInfo>() { stream };
         }
 
         private async Task<ChannelItemResult> GetRecordingGroups(InternalChannelItemQuery query, CancellationToken cancellationToken)
