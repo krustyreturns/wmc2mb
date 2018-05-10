@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.IO;
 using MediaBrowser.Common.Net;
 using MediaBrowser.Controller.LiveTv;
 using MediaBrowser.Model.LiveTv;
 using System.Threading;
-using System.IO;
 using System.Reflection;
 using System.Diagnostics;
 using MediaBrowser.Model.Logging;
@@ -595,7 +594,7 @@ namespace wmc2mb
                         await SocketClientAsync.GetVectorAsync(XferString("StreamFileSize", 1d), cancellationToken, streamId);
                     }
                 }
-                else if (File.Exists(strm)) // if the path is a file path
+                else if (_fileSystem.FileExists(strm)) // if the path is a file path
                 {
                     // give serverWMC and response so that it knows the stream  was found
                     // if there is a problem accessing it, the mbs core will take care of it
@@ -1161,7 +1160,7 @@ namespace wmc2mb
                 if (!isUrl)
                     strmFile = TVPath(strmFile);                // correct for possible unix mount paths
 
-                if (isUrl || File.Exists(strmFile)) 
+                if (isUrl || _fileSystem.FileExists(strmFile)) 
                 {
                     // give serverWMC and response so that it knows the stream  was found
                     // if there is a problem accessing it, the mbs core will take care of it
