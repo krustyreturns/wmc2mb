@@ -233,7 +233,7 @@ namespace wmc2mb
                 CommunityRating = item.CommunityRating,
                 ContentType = item.IsMovie ? ChannelMediaContentType.Movie : (item.IsSeries ? ChannelMediaContentType.Episode : ChannelMediaContentType.Clip),
                 Genres = item.Genres,
-                ImageUrl = item.ImageUrl,
+                ImageUrl = item.ImageUrl ?? item.ImagePath,
                 //HomePageUrl = item.HomePageUrl
                 Id = item.Id,
                 //IndexNumber = item.IndexNumber,
