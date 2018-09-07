@@ -6,10 +6,12 @@ using wmc2mb.Configuration;
 using MediaBrowser.Model.Plugins;
 using System.Collections.Generic;       // for new way to doing webpages
 using MediaBrowser.Model.Logging;
+using System.IO;
+using MediaBrowser.Model.Drawing;
 
 namespace wmc2mb
 {
-    public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
+    public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages, IHasThumbImage
     {
         public Plugin(IApplicationPaths applicationPaths, IXmlSerializer xmlSerializer) : base(applicationPaths, xmlSerializer)
         {
@@ -40,6 +42,20 @@ namespace wmc2mb
         public override Guid Id
         {
             get { return _id; }
+        }
+
+        public Stream GetThumbImage()
+        {
+            var type = GetType();
+            return type.Assembly.GetManifestResourceStream(type.Namespace + ".thumb.jpg");
+        }
+
+        public ImageFormat ThumbImageFormat
+        {
+            get
+            {
+                return ImageFormat.Jpg;
+            }
         }
 
         /// <summary>
