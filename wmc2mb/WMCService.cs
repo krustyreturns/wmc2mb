@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.IO;
 using MediaBrowser.Common.Net;
 using MediaBrowser.Controller.LiveTv;
 using MediaBrowser.Model.LiveTv;
 using System.Threading;
-using System.IO;
 using System.Reflection;
 using System.Diagnostics;
 using MediaBrowser.Model.Logging;
@@ -58,6 +57,7 @@ namespace wmc2mb
         public string _recTVPath = null;            // store the path to the rec TV folder received from swmc
 
         private string _linuxPath;
+        public DateTimeOffset LastRecordingChange = DateTimeOffset.MinValue;
 
         /// <summary>
         /// constructor
@@ -594,7 +594,7 @@ namespace wmc2mb
                         await SocketClientAsync.GetVectorAsync(XferString("StreamFileSize", 1d), cancellationToken, streamId);
                     }
                 }
-                else if (File.Exists(strm)) // if the path is a file path
+                else if (_fileSystem.FileExists(strm)) // if the path is a file path
                 {
                     // give serverWMC and response so that it knows the stream  was found
                     // if there is a problem accessing it, the mbs core will take care of it
@@ -815,9 +815,9 @@ namespace wmc2mb
 
             string entryId = EntryId(info.ProgramId);                      // extract entryId from combo Id
 
-            if (DateTime.UtcNow >= info.EndDate)
+            if (DateTimeOffset.UtcNow >= info.EndDate)
             {
-                _logger.Error("CreateTimerAsync> requested program '{0}' has already aired;  EndTime(UTC): {1},  CurrentTime(UTC): {2}", info.Name, info.EndDate, DateTime.UtcNow);
+                _logger.Error("CreateTimerAsync> requested program '{0}' has already aired;  EndTime(UTC): {1},  CurrentTime(UTC): {2}", info.Name, info.EndDate, DateTimeOffset.UtcNow);
                 throw new Exception("ServerWMC: Can't record: program occurs in the past");
             }
 
@@ -840,8 +840,9 @@ namespace wmc2mb
 
             if (!IsServerError(responses))
             {
-                
-		        _logger.Info("CreateTimerAsync> recording added for timer '{0}', status {1}", info.Name, info.Status);
+                LastRecordingChange = DateTimeOffset.UtcNow;
+
+                _logger.Info("CreateTimerAsync> recording added for timer '{0}', status {1}", info.Name, info.Status);
 
 		        if (responses.Length > 1)								        // if there is extra results sent from server...
 		        {
@@ -901,7 +902,7 @@ namespace wmc2mb
 
             if (!IsServerError(responses))
             {
-
+                LastRecordingChange = DateTimeOffset.UtcNow;
             }
         }
 
@@ -1047,7 +1048,7 @@ namespace wmc2mb
 
             if (!IsServerError(responses))
             {
-
+                LastRecordingChange = DateTimeOffset.UtcNow;
             }
         }
 
@@ -1057,7 +1058,7 @@ namespace wmc2mb
 
             if (!IsServerError(responses))
             {
-
+                LastRecordingChange = DateTimeOffset.UtcNow;
             }
         }
 
@@ -1082,7 +1083,7 @@ namespace wmc2mb
 
             if (!IsServerError(responses))
             {
-
+                LastRecordingChange = DateTimeOffset.UtcNow;
             }
         }
 
@@ -1118,7 +1119,7 @@ namespace wmc2mb
 
             if (!IsServerError(responses))
             {
-
+                LastRecordingChange = DateTimeOffset.UtcNow;
             }
         }
 
@@ -1159,7 +1160,7 @@ namespace wmc2mb
                 if (!isUrl)
                     strmFile = TVPath(strmFile);                // correct for possible unix mount paths
 
-                if (isUrl || File.Exists(strmFile)) 
+                if (isUrl || _fileSystem.FileExists(strmFile)) 
                 {
                     // give serverWMC and response so that it knows the stream  was found
                     // if there is a problem accessing it, the mbs core will take care of it
@@ -1239,7 +1240,12 @@ namespace wmc2mb
 
         public async Task<IEnumerable<RecordingInfo>> GetRecordingsAsync(System.Threading.CancellationToken cancellationToken)
         {
-            var recordings = new List<RecordingInfo>();
+            return new List<RecordingInfo>();
+        }
+
+        public async Task<IEnumerable<MyRecordingInfo>> GetAllRecordingsAsync(System.Threading.CancellationToken cancellationToken)
+        {
+            var recordings = new List<MyRecordingInfo>();
 
             char[] dlim = { ';' };
 
@@ -1249,13 +1255,13 @@ namespace wmc2mb
             {
                 foreach (string response in responses)
                 {
-                    RecordingInfo mRec = new RecordingInfo();
+                    MyRecordingInfo mRec = new MyRecordingInfo();
 
-                    var v = response.Split('|');				// split to unpack string
+                    var v = response.Split('|');                // split to unpack string
 
 
-                 //   if (long.Parse(v[10]) < 0)
-                 //       Debug.WriteLine("");
+                    //   if (long.Parse(v[10]) < 0)
+                    //       Debug.WriteLine("");
 
                     mRec.Id = v[0];
                     mRec.Name = v[1];
@@ -1271,9 +1277,9 @@ namespace wmc2mb
                     if (v[7] != string.Empty)
                     {
                         if (v[7].StartsWith(HTTP))          // if path is web url
-                            mRec.ImageUrl = v[7];  
+                            mRec.ImageUrl = v[7];
                         else                                // otherwise assume unc path
-                            mRec.ImagePath = TVPath(v[7]);  
+                            mRec.ImagePath = TVPath(v[7]);
                     }
                     mRec.HasImage = false;// v[7] != string.Empty;
                     //STRCPY(xRec.strThumbnailPath, v[8].c_str());
@@ -1350,7 +1356,7 @@ namespace wmc2mb
         #region epg
 
 
-        public async Task<IEnumerable<ProgramInfo>> GetProgramsAsync(string channelId, DateTime startDateUtc, DateTime endDateUtc, CancellationToken cancellationToken)
+        public async Task<IEnumerable<ProgramInfo>> GetProgramsAsync(string channelId, DateTimeOffset startDateUtc, DateTimeOffset endDateUtc, CancellationToken cancellationToken)
         {
             var programs = new List<ProgramInfo>();
 
@@ -1379,8 +1385,8 @@ namespace wmc2mb
                     //mProg.ChannelName = v[2];
                     mProg.StartDate = Utilities.ToDateTime(v[3]);
                     mProg.EndDate = Utilities.ToDateTime(v[4]);
-                    DateTime tStart = mProg.StartDate.ToLocalTime();
-                    DateTime tEnd = mProg.EndDate.ToLocalTime();
+                    var tStart = mProg.StartDate.ToLocalTime();
+                    var tEnd = mProg.EndDate.ToLocalTime();
 
                     mProg.ShortOverview = v[5];
                     mProg.Overview = v[6];
