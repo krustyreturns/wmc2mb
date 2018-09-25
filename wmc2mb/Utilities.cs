@@ -5,15 +5,14 @@ namespace wmc2mb
     static class Utilities
     {
         // used for time_t conversion
-        static readonly DateTime TIME_T_REF = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        static readonly DateTimeOffset TIME_T_REF = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
         // smallest datetime value allowed
-        static readonly DateTime TIME_MIN = new DateTime(1900, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        static readonly DateTimeOffset TIME_MIN = new DateTimeOffset(1900, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
-        public static DateTime ToDateTime(string time_t)
+        public static DateTimeOffset ToDateTime(string time_t)
         {
             long t = long.Parse(time_t);
-            DateTime dt = TIME_T_REF.AddSeconds(t);
-            return dt;
+            return TIME_T_REF.AddSeconds(t);
         }
 
         /// <summary>
@@ -21,7 +20,7 @@ namespace wmc2mb
         /// </summary>
         /// <param name="dt">DateTime to convert</param>
         /// <returns>output time_t in string form</returns>
-        public static string ToTime_t(DateTime dt)
+        public static string ToTime_t(DateTimeOffset dt)
         {
             if (dt < TIME_MIN)
                 dt = TIME_MIN;
